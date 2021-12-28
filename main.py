@@ -86,7 +86,7 @@ def lambda_handler(event, context):
     # Process command parameters
     if "text" in event:
         params = event["text"].split(" ")
-        print(params)
+        logger.debug(f"Command parameters: {params}")
         if len(params) > 0:
             try:
                 number = int(params[0])
@@ -180,7 +180,6 @@ def send_header_message(request_type, number, year, cache_existing=False):
     try:
         slack_client.chat_postMessage(
             channel=CONTENT_CHANNEL,
-            as_user=False,
             text=message
         )
     except SlackApiError as e:
@@ -217,7 +216,7 @@ def send_content_message(image: str, message: str):
             return False
         result = slack_client.files_upload(
             channels=CONTENT_CHANNEL,
-            initial_comment=f"*{author}* {title}",
+            initial_comment=f":wavy_dash::wavy_dash::wavy_dash::wavy_dash::wavy_dash::wavy_dash::wavy_dash::wavy_dash::wavy_dash:\n*{author}* {title}",
             file=BytesIO(img_request.data),
             filename=" "
         )
@@ -237,7 +236,6 @@ def send_admin_message(message):
     try:
         slack_client.chat_postMessage(
             channel=ADMIN_CHANNEL,
-            as_user=False,
             text=message
         )
     except SlackApiError as e:
@@ -254,7 +252,6 @@ def send_private_message(message):
         slack_client.chat_postEphemeral(
             channel=INVOCATION_CHANNEL_ID,
             user=INVOCATION_USER_ID,
-            as_user=False,
             text=message
         )
     except SlackApiError as e:
@@ -268,7 +265,7 @@ def main():
         "text": " ".join(sys.argv[3:]),
         "channel_id": ADMIN_CHANNEL
     }
-    lambda_handler(event)
+    lambda_handler(event, None)
 
 
 if __name__ == "__main__":
